@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <context:component-scan base-package="com"/>
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="url" value="${jdbc.url}"/>
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="validationQuery" value="SELECT 1"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath:mapper/userMapper.xml"/>
+    </bean>
+
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+
+        <property name="basePackage" value="com.mapper"/>
+    </bean>
+
+
+    <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+        <property name="port" value="10199"/>
+        <!--<property name="host" value="106.14.4.157"/>-->
+    </bean>
+
+    <bean id="excellentService" class="com.service.ExcellentServiceImpl"/>
+    <bean id="excellent" class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <property name="service" ref="excellentService"/>
+        <property name="serviceInterface" value="com.service.ExcellentService"/>
+        <property name="serviceName" value="excellent"/>
+        <!--<property name="servicePort" value="1000"/>-->
+        <property name="registry" ref="registry"/>
+    </bean>
+
+    <bean id="jobService" class="com.service.JobServiceImpl"/>
+    <bean id="job" class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <property name="service" ref="jobService"/>
+        <property name="serviceInterface" value="com.service.JobService"/>
+        <property name="serviceName" value="job"/>
+        <!--<property name="servicePort" value="1000"/>-->
+        <property name="registry" ref="registry"/>
+    </bean>
+
+    <bean id="userService" class="com.service.UserServiceImpl"/>
+    <bean id="user" class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <property name="service" ref="userService"/>
+        <property name="serviceInterface" value="com.service.UserService"/>
+        <property name="serviceName" value="user"/>
+        <!--<property name="servicePort" value="1000"/>-->
+        <property name="registry" ref="registry"/>
+    </bean>
+
+</beans>
